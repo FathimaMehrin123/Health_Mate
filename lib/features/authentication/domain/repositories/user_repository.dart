@@ -7,3 +7,5 @@ abstract class UserRepository {
   Future<Either<Failure, void>> saveUser(User user);
   Future<Either<Failure, void>> updateUser(User user);
 }
+
+

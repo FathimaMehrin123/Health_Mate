@@ -5,20 +5,26 @@ part 'user_model.g.dart';
 
 @HiveType(typeId: 0)
 class UserModel extends User {
+  @override
   @HiveField(0)
   String id;
 
+  @override
   @HiveField(1)
   String name;
 
+  @override
   @HiveField(2)
   int age;
 
+  @override
   @HiveField(3)
   double height;
+  @override
   @HiveField(4)
   double weight;
 
+  @override
   @HiveField(5)
   String activityGoal;
 
