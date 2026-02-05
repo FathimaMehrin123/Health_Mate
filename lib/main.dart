@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:health_mate/core/theme/app_theme.dart';
-import 'package:health_mate/features/authentication/presentation/screens/profile_setup_screen.dart';
-import 'package:health_mate/injection_container.dart';
+import 'package:health_mate/core/route/app_router.dart';
 
-Future<void> main() async {
+import 'core/theme/app_theme.dart';
+import 'injection_container.dart' as di;
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await init();
-  runApp(MyApp());
+
+  // Initialize dependency injection
+  await di.init();
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -15,9 +19,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'Health Companion',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: ProfileSetupScreen(),
+      onGenerateRoute: AppRouter.generateRoute,
+      initialRoute: AppRouter.activity, // For testing activity screen
     );
   }
 }

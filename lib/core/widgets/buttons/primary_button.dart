@@ -10,7 +10,7 @@ class PrimaryButton extends StatefulWidget {
   final Color? textColor;
 
   const PrimaryButton({
-    super.key,
+    super.key, 
     required this.text,
     this.onPressed,
     this.isLoading = false,
@@ -19,7 +19,7 @@ class PrimaryButton extends StatefulWidget {
     this.backgroundColor,
     this.textColor,
   });
-
+ 
   @override
   State<PrimaryButton> createState() => _PrimaryButtonState();
 }

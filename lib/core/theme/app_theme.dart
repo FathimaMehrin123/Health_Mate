@@ -54,4 +54,9 @@ class AppTheme {
       thickness: 1,
     ),
   );
+
+  static ThemeData darkTheme = ThemeData(
+    brightness: Brightness.dark,
+    // ... dark colors
+  );
 }
