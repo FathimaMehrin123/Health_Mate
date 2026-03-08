@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:health_mate/features/sleep/models/sleep_record_model.dart';
 import 'package:hive_flutter/adapters.dart';
 
 // ===== Authentication feature imports =====
@@ -23,6 +24,17 @@ import 'features/activity/domain/usecases/save_activity.dart';
 import 'features/activity/presentation/bloc/activity_bloc.dart';
 import 'services/ml_service.dart';
 
+// ===== Sleep Feature imports =====
+import 'features/sleep/data/datasources/microphone_datasource.dart';
+import 'features/sleep/data/datasources/sleep_local_datasource.dart';
+import 'features/sleep/data/repositories/sleep_repository_impl.dart';
+import 'features/sleep/domain/repositories/sleep_repository.dart';
+import 'features/sleep/domain/usecases/get_sleep_records.dart';
+import 'features/sleep/domain/usecases/get_last_night_sleep.dart';
+import 'features/sleep/domain/usecases/save_sleep_record.dart';
+import 'features/sleep/domain/usecases/analyze_sleep_quality.dart';
+import 'features/sleep/presentation/bloc/sleep_bloc.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -31,13 +43,20 @@ Future<void> init() async {
   // =========================
   await Hive.initFlutter();
 
-  // Register adapters
+  // Register all adapters
   Hive.registerAdapter(UserModelAdapter());
   Hive.registerAdapter(ActivityModelAdapter());
+  Hive.registerAdapter(SleepRecordModelAdapter());
 
-  // Open boxes
+  // Open all boxes and store references
   final userBox = await Hive.openBox<UserModel>('users');
   final activityBox = await Hive.openBox<ActivityModel>('activities');
+  final sleepBox = await Hive.openBox<SleepRecordModel>('sleep_records');
+
+  // Register boxes in GetIt for dependency injection
+  sl.registerSingleton<Box<UserModel>>(userBox);
+  sl.registerSingleton<Box<ActivityModel>>(activityBox);
+  sl.registerSingleton<Box<SleepRecordModel>>(sleepBox);
 
   // =========================
   // Authentication Feature
@@ -102,6 +121,55 @@ Future<void> init() async {
 
   sl.registerLazySingleton<SensorDataSource>(
     () => SensorDataSourceImpl(),
+  );
+
+  // =========================
+  // Sleep Feature
+  // =========================
+
+  // Data Sources
+  sl.registerLazySingleton<SleepLocalDataSource>(
+    () => SleepLocalDataSourceImpl(sleepBox),
+  );
+
+  sl.registerLazySingleton<MicrophoneDataSource>(
+    () => MicrophoneDataSourceImpl(),
+  );
+
+  // Repository
+  sl.registerLazySingleton<SleepRepository>(
+    () => SleepRepositoryImpl(
+      localDataSource: sl<SleepLocalDataSource>(),
+      microphoneDataSource: sl<MicrophoneDataSource>(),
+    ),
+  );
+
+  // Use Cases
+  sl.registerLazySingleton<GetSleepRecords>(
+    () => GetSleepRecords(sl<SleepRepository>()),
+  );
+
+  sl.registerLazySingleton<GetLastNightSleep>(
+    () => GetLastNightSleep(sl<SleepRepository>()),
+  );
+
+  sl.registerLazySingleton<SaveSleepRecord>(
+    () => SaveSleepRecord(sl<SleepRepository>()),
+  );
+
+  sl.registerLazySingleton<AnalyzeSleepQuality>(
+    () => AnalyzeSleepQuality(sl<SleepRepository>()),
+  );
+
+  // BLoC
+  sl.registerLazySingleton<SleepBloc>(
+    () => SleepBloc(
+      getSleepRecords: sl<GetSleepRecords>(),
+      getLastNightSleep: sl<GetLastNightSleep>(),
+      saveSleepRecord: sl<SaveSleepRecord>(),
+      analyzeSleepQuality: sl<AnalyzeSleepQuality>(),
+      repository: sl<SleepRepository>(),
+    ),
   );
 
   // =========================

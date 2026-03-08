@@ -1,30 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:health_mate/features/activity/presentation/screens/activity_screen.dart';
 import 'package:health_mate/features/authentication/presentation/screens/profile_setup_screen.dart';
-/*
-class AppRouter {
-  static const String profile = '/profile';
-  static const String dashboard = '/dashboard';
+import 'package:health_mate/features/sleep/presentation/bloc/sleep_bloc.dart';
+import 'package:health_mate/features/sleep/presentation/sleep_screen.dart';
+import 'package:health_mate/injection_container.dart' as di;
 
-  static Route<dynamic> generateRoute(RouteSettings settings) {
-    switch (settings.name) {
-      case profile:
-        return MaterialPageRoute(
-          builder: (_) => const ProfileSetupScreen(),
-        );
-      case dashboard:
-        return MaterialPageRoute(
-          builder: (_) => const DashboardScreen(), // Create this next
-        );
-      default:
-        return MaterialPageRoute(
-          builder: (_) => const ProfileSetupScreen(),
-        );
-    }
-  }
-}
-
-*/
 
 class AppRouter {
   // Route Names
@@ -41,38 +22,55 @@ class AppRouter {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case splash:
+        // Splash screen route - shows app splash and checks if user is logged in
         return _fadeRoute(const Placeholder());
 
       case onboarding:
+        // Onboarding route - shows onboarding screens for new users
         return _fadeRoute(const Placeholder());
 
       case profile:
+        // Profile setup route - allows user to complete their profile
         return _slideRoute(const ProfileSetupScreen());
 
       case dashboard:
+        // Dashboard route - main screen showing health overview
         return _fadeRoute(const Placeholder());
 
       case activity:
+        // Activity tracking route - shows user activity data and tracking
         return _slideRoute(const ActivityScreen());
 
       case sleep:
-        return _slideRoute(const Placeholder());
+        // Sleep tracking route - shows sleep data, charts, and analytics
+        // BlocProvider wraps SleepScreen to provide SleepBloc to the screen
+        return _slideRoute(
+          BlocProvider<SleepBloc>(
+            create: (context) => di.sl<SleepBloc>(),
+            child: const SleepScreen(),
+          ),
+        );
 
       case achievements:
+        // Achievements route - shows user achievements and badges
         return _slideRoute(const Placeholder());
 
       case settingsRoute:
+        // Settings route - app settings and preferences
         return _slideRoute(const Placeholder());
 
       case posture:
+        // Posture detection route - shows posture analysis and alerts
         return _slideRoute(const Placeholder());
 
       default:
+        // Default route - fallback to profile setup screen
         return _fadeRoute(const ProfileSetupScreen());
     }
   }
 
   // ── Slide Route Animation ──
+  // Creates a slide transition animation from right to left
   static Route _slideRoute(Widget page) {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => page,
@@ -93,6 +91,7 @@ class AppRouter {
   }
 
   // ── Fade Route Animation ──
+  // Creates a fade in/out transition animation
   static Route _fadeRoute(Widget page) {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => page,

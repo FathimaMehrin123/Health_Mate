@@ -10,3 +10,7 @@ class DatabaseFailure extends Failure {
 class SensorFailure extends Failure {
   SensorFailure(super.message);
 }
+
+class UnexpectedFailure extends Failure {
+  UnexpectedFailure(super.message);
+}
